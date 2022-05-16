@@ -1,27 +1,20 @@
-import React from 'react';
-import ReactDOM from 'react-dom/client';
-import App from './App';
-import { 
-  ApolloClient, 
-  ApolloProvider, 
-  HttpLink,
-  InMemoryCache 
-} from '@apollo/client';
+const { ApolloServer } = require("apollo-server");
+const typeDefs = require("./schema");
 
-const client = new ApolloClient({
-  link: new HttpLink({
-    uri: "https://swapi.dev/api/"
+const resolvers = require("./resolvers");
+
+const starWarsAPI = require("./datasource/people");
+const server = new ApolloServer({
+  typeDefs,
+  resolvers,
+  dataSources: () => ({
+    starWarsAPI: new starWarsAPI(),
   }),
-  cache: new InMemoryCache(),
+});
 
-})
-
-const root = ReactDOM.createRoot(document.getElementById('root'));
-root.render(
-  <React.StrictMode>
-    <ApolloProvider client={client}>
-      <App />
-    </ApolloProvider>
-  </React.StrictMode>
-);
-
+server.listen().then(() => {
+  console.log(`
+        Server is running!
+        Listening on port 4000
+      `);
+});
